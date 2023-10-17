@@ -1,5 +1,4 @@
 import "@stdlib/deploy";
-
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -74,21 +73,9 @@ struct Jetton {
 contract Task3 with Deployable {
     owner: Address;
     j: map<Address, Jetton>;
-    /*
-    aAmount: Int;
-    bAmount: Int;
-    jettonAddressA: Address;
-    jettonAddressB: Address;
-    */
     decimal: Int;
     init(admin: Address, newJettonAddressA: Address, newJettonAddressB: Address){
         self.owner = admin;
-        /*
-        self.jettonAddressA = newJettonAddressA;
-        self.jettonAddressB = newJettonAddressB;
-        self.aAmount = 0;
-        self.bAmount = 0;
-        */
         self.j.set(newJettonAddressA, Jetton{amount: 0, pair: newJettonAddressB});
         self.j.set(newJettonAddressB, Jetton{amount: 0, pair: newJettonAddressA});
         self.decimal = 1000000000;
@@ -102,17 +89,9 @@ contract Task3 with Deployable {
         let xAddress: Address = sender();
         let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
-            // sendJetton(jAddress, jAmount, self.owner);
-            /*
-            if (jAddress == self.jettonAddressA) {
-                self.aAmount = self.aAmount + jAmount;
-            } else {
-                self.bAmount = self.bAmount + jAmount;
-            }
-            */
             jettonX.amount = xA + xAmount;
             //TODO: Проверить надо ли записывать в селф или он jetton сам запишет
-            self.j.set(xAddress, jettonX);
+            // self.j.set(xAddress, jettonX);
             return ;
         }
         let jettonY: Jetton = self.j.get(jettonX.pair)!!;
@@ -131,18 +110,11 @@ contract Task3 with Deployable {
         sendJetton(jettonX.pair, ton("0.1"), true, 0, ySwap, msg.from);
         jettonY.amount = yA - ySwap;
         jettonX.amount = xA + xAmount;
-        self.j.set(xAddress, jettonX);
-        self.j.set(jettonX.pair, jettonY);
+        // self.j.set(xAddress, jettonX);
+        // self.j.set(jettonX.pair, jettonY);
     }
 
     get fun price(jetton: Address): Int {
-        /*
-        if (jetton == self.jettonAddressA) {
-            return self.aAmount * self.decimal / self.bAmount;
-        } else {
-            return self.bAmount * self.decimal / self.aAmount;
-        }
-        */
         let jX: Jetton = self.j.get(jetton)!!;
         let jY: Jetton = self.j.get(jX.pair)!!;
         return jY.amount * self.decimal / jX.amount;
@@ -151,12 +123,5 @@ contract Task3 with Deployable {
     get fun balance(jetton: Address): Int {
         let jA: Jetton = self.j.get(jetton)!!;
         return jA.amount;
-        /*
-        if (jetton == self.jettonAddressA) {
-            return self.aAmount;
-        } else {
-            return self.bAmount;
-        }
-        */
     }
 }

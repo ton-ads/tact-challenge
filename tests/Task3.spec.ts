@@ -116,7 +116,7 @@ describe('Task3', () => {
         console.log('balance A ', aBalance);
         const bBalance = await task3.getBalance(jettonB.address);
         console.log('balance B ', bBalance);
-        const shouldPriceB = aBalance * decimal / bBalance
+        const shouldPriceB = bBalance * decimal / aBalance
         console.log('should price B', shouldPriceB);
 
         const bPrice = await task3.getPrice(jettonB.address);
