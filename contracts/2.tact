@@ -25,8 +25,20 @@ contract Task2 with Deployable {
 
     receive(msg: Refund){
         require(sender() == self.admin, "Only deployer is allowed to withdraw");
-        send(SendParameters{to: sender(), bounce: true, value: 0, mode: SendRemainingBalance + SendIgnoreErrors});
+        send(SendParameters{to: msg.sender,
+                bounce: false,
+                value: context().value,
+                mode: SendPayGasSeparately + SendIgnoreErrors
+            }
+        );
     }
 
-    receive(msg: Slice){}
+    receive(msg: Slice){
+        send(SendParameters{to: self.admin,
+                bounce: false,
+                value: context().value,
+                mode: SendPayGasSeparately + SendIgnoreErrors
+            }
+        );
+    }
 }
