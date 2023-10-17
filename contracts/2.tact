@@ -1,4 +1,5 @@
 import "@stdlib/deploy";
+
 /*
   TASK 2 - Proxy 
   Create a contract that forwards all received TONs
@@ -17,11 +18,6 @@ message(0x44) Refund {
     sender: Address;
 }
 
-message ProxyTon {
-    sender: Address;
-    message: Slice;
-}
-
 contract Task2 with Deployable {
     admin: Address;
     init(admin: Address){
@@ -29,15 +25,10 @@ contract Task2 with Deployable {
     }
 
     receive(msg: Refund){
-        require(sender() == self.admin, "!admin");
-        send(SendParameters{
-                to: msg.sender,
-                value: 0,
-                mode: SendRemainingValue + SendIgnoreErrors
-            }
-        );
-      
-      /*
+        require(context().sender == self.admin, "!admin");
+        send(SendParameters{to: msg.sender, value: 0, mode: SendRemainingValue + SendIgnoreErrors});
+
+        /*
         if (context().sender == self.admin) {
             send(SendParameters{
               to: msg.sender, 
@@ -53,14 +44,10 @@ contract Task2 with Deployable {
     }
 
     receive(msg: Slice){
-        send(SendParameters{
-                to: self.admin,
+        send(SendParameters{to: self.admin,
                 value: 0,
                 mode: SendRemainingValue + SendIgnoreErrors,
-                body: ProxyTon{
-                  sender: sender(),
-                  message: msg
-                }.toCell()
+                body: beginCell().storeAddress(context().sender).storeRef(msg.asCell()).endCell()
             }
         );
     }
