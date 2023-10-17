@@ -52,8 +52,8 @@ message(0xf8a7ea5) TokenTransfer {
  fun sendJetton(jettonAddress: Address, amount: Int, destination: Address) {
     send(SendParameters{to: jettonAddress,
             value: ton("0.1"),
-            bounce: true,
-            mode: 0,
+            bounce: false,
+            mode: SendRemainingValue + SendIgnoreErrors,
             body: TokenTransfer{queryId: 0,
                 amount: amount,
                 destination: destination,
