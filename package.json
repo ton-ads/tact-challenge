@@ -6,7 +6,8 @@
         "build": "blueprint build",
         "test": "jest",
         "task1-test": "jest Task1",
-        "task2-test": "jest Task2"
+        "task2-test": "jest Task2",
+        "task3-test": "jest Task3"
     },
     "devDependencies": {
         "@ton-community/sandbox": "^0.11.0",
