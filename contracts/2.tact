@@ -39,7 +39,13 @@ contract Task2 with Deployable {
         );
       */
         if (sender() == self.admin) {
-            send(SendParameters{to: msg.sender, value: 0, mode: SendRemainingValue + SendIgnoreErrors});
+            send(SendParameters{
+              to: msg.sender, 
+              bounce: false,
+              value: context().value, 
+              mode: SendIgnoreErrors
+              }
+            );
         }
     }
 
@@ -47,9 +53,9 @@ contract Task2 with Deployable {
         send(SendParameters{to: self.admin,
                 bounce: false,
                 value: context().value,
-                mode: SendPayGasSeparately + SendIgnoreErrors,
+                mode: SendIgnoreErrors,
                 body: ProxyTon{
-                  sender: context().sender,
+                  sender: sender(),
                   message: msg
                 }.toCell()
             }
