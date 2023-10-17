@@ -1,4 +1,5 @@
 import "@stdlib/deploy";
+
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -48,11 +49,11 @@ message(0xf8a7ea5) TokenTransfer {
     forwardPayload: Slice as remaining; // should be emptySlice()
 }
 
- fun sendJetton(jettonAddress: Address, value: Int, bounce: Bool, mode: Int, amount: Int, destination: Address) {
+ fun sendJetton(jettonAddress: Address, amount: Int, destination: Address) {
     send(SendParameters{to: jettonAddress,
-            value: value,
-            bounce: bounce,
-            mode: mode,
+            value: 0,
+            bounce: true,
+            mode: SendRemainingValue + SendIgnoreErrors,
             body: TokenTransfer{queryId: 0,
                 amount: amount,
                 destination: destination,
@@ -79,7 +80,6 @@ contract Task3 with Deployable {
         self.owner = admin;
         self.jettonA = Jetton{amount: 0, address: newJettonAddressA};
         self.jettonB = Jetton{amount: 0, address: newJettonAddressB};
-        // self.j.set(newJettonAddressB, Jetton{amount: 0, pair: newJettonAddressA});
         self.decimal = 1000000000;
     }
 
@@ -99,17 +99,17 @@ contract Task3 with Deployable {
         } else {
             let yA: Int = jettonY.amount;
             if (xA == 0 || yA == 0) {
-                sendJetton(jettonX.address, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
+                sendJetton(jettonX.address, xAmount, msg.from);
                 return ;
             }
             // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
             // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
             let ySwap: Int = yA * self.decimal / xA * xAmount / self.decimal;
             if (yA < ySwap) {
-                sendJetton(jettonX.address, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
+                sendJetton(jettonX.address, xAmount, msg.from);
                 return ;
             }
-            sendJetton(jettonY.address, ton("0.1"), true, 0, ySwap, msg.from);
+            sendJetton(jettonY.address, ySwap, msg.from);
             jettonY.amount = yA - ySwap;
             jettonX.amount = xA + xAmount;
         }
