@@ -83,15 +83,13 @@ contract Task3 with Deployable {
     }
 
     receive(msg: TokenNotification){
-        // require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "!jettonAddress");
-        require(self.j.get(sender()) != null, "!jettonAddress");
-        let jettonX: Jetton = self.j.get(sender())!!;
-        let xA: Int = jettonX.amount;
         let xAddress: Address = sender();
+        require(self.j.get(xAddress) != null, "!jettonAddress");
+        let jettonX: Jetton = self.j.get(xAddress)!!;
+        let xA: Int = jettonX.amount;
         let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
             jettonX.amount = xA + xAmount;
-            //TODO: Проверить надо ли записывать в селф или он jetton сам запишет
             self.j.set(xAddress, jettonX);
             return ;
         }
@@ -111,8 +109,8 @@ contract Task3 with Deployable {
         sendJetton(jettonX.pair, ton("0.1"), true, 0, ySwap, msg.from);
         jettonY.amount = yA - ySwap;
         jettonX.amount = xA + xAmount;
-        // self.j.set(xAddress, jettonX);
-        // self.j.set(jettonX.pair, jettonY);
+        self.j.set(xAddress, jettonX);
+        self.j.set(jettonX.pair, jettonY);
     }
 
     get fun price(jetton: Address): Int {
