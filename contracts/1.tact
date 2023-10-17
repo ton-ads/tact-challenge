@@ -7,6 +7,7 @@ import "@stdlib/deploy";
   You also need to implement one getter with the name "counter" to get the current number from the state.
 */
 
+
 message Add {
   queryId: Int as uint64;
   number: Int as uint32;
