@@ -97,6 +97,11 @@ contract Task3 with Deployable {
         if (msg.from == self.owner) {
             jettonX.amount = xA + xAmount;
             // self.j.set(xAddress, jettonX);
+            if (self.jettonA.address == sender()) {
+                self.jettonA = jettonX;
+            } else {
+                self.jettonB = jettonX;
+            }
             return ;
         }
         // let jettonY: Jetton = self.j.get(jettonX.pair)!!;
