@@ -49,6 +49,23 @@ message(0xf8a7ea5) TokenTransfer {
     forwardPayload: Slice as remaining; // should be emptySlice()
 }
 
+ fun sendJetton(jettonAddress: Address, amount: Int, destination: Address) {
+    send(SendParameters{to: jettonAddress,
+            value: ton("0.1"),
+            bounce: true,
+            mode: 0,
+            body: TokenTransfer{queryId: 0,
+                amount: amount,
+                destination: destination,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: emptySlice()
+            }.toCell()
+        }
+    );
+}
+
 contract Task3 with Deployable {
     owner: Address;
     aAmount: Int;
@@ -65,7 +82,20 @@ contract Task3 with Deployable {
         self.decimal = 1000000000;
     }
 
-    receive(msg: TokenNotification){}
+    receive(msg: TokenNotification){
+        let jAddress: Address = sender();
+        require(jAddress != self.jettonAddressA && jAddress != self.jettonAddressB, "!jettonAddress");
+        let jAmount: Int = msg.amount;
+        if (msg.from == self.owner) {
+            // sendJetton(jAddress, msg.amount, self.owner)
+            if (jAddress == self.jettonAddressA) {
+                self.aAmount = self.aAmount + jAmount;
+            } else {
+                self.bAmount = self.bAmount + jAmount;
+            }
+            return ;
+        }
+    }
 
     get fun price(jetton: Address): Int {
         if (jetton == self.jettonAddressA) {
