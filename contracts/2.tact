@@ -17,6 +17,11 @@ message(0x44) Refund {
     sender: Address;
 }
 
+message ProxyTon {
+    sender: Address;
+    message: Slice;
+}
+
 contract Task2 with Deployable {
     admin: Address;
     init(admin: Address){
@@ -24,6 +29,7 @@ contract Task2 with Deployable {
     }
 
     receive(msg: Refund){
+        /*
         require(sender() == self.admin, "Only deployer is allowed to withdraw");
         send(SendParameters{to: msg.sender,
                 bounce: false,
@@ -31,13 +37,21 @@ contract Task2 with Deployable {
                 mode: SendPayGasSeparately + SendIgnoreErrors
             }
         );
+      */
+        if (sender() == self.admin) {
+            send(SendParameters{to: msg.sender, value: 0, mode: SendRemainingValue + SendIgnoreErrors});
+        }
     }
 
     receive(msg: Slice){
         send(SendParameters{to: self.admin,
                 bounce: false,
                 value: context().value,
-                mode: SendPayGasSeparately + SendIgnoreErrors
+                mode: SendPayGasSeparately + SendIgnoreErrors,
+                body: ProxyTon{
+                  sender: context().sender,
+                  message: msg
+                }.toCell()
             }
         );
     }
