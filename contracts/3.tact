@@ -48,11 +48,11 @@ message(0xf8a7ea5) TokenTransfer {
     forwardPayload: Slice as remaining; // should be emptySlice()
 }
 
- fun sendJetton(jettonAddress: Address, amount: Int, destination: Address) {
+ fun sendJetton(jettonAddress: Address, value: Int, bounce: Bool, mode: Int, amount: Int, destination: Address) {
     send(SendParameters{to: jettonAddress,
-            value: ton("0.1"),
-            bounce: false,
-            mode: SendRemainingValue + SendIgnoreErrors,
+            value: value,
+            bounce: bounce,
+            mode: mode,
             body: TokenTransfer{queryId: 0,
                 amount: amount,
                 destination: destination,
@@ -117,17 +117,17 @@ contract Task3 with Deployable {
         let jettonY: Jetton = self.j.get(jettonX.pair)!!;
         let yA: Int = jettonY.amount;
         if (xA == 0 || yA == 0) {
-            sendJetton(xAddress, xAmount, msg.from);
+            sendJetton(xAddress, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
             return ;
         }
         // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
         // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
         let ySwap: Int = yA * self.decimal / xA * xAmount / self.decimal;
         if (yA < ySwap) {
-            sendJetton(xAddress, xAmount, msg.from);
+            sendJetton(xAddress, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
             return ;
         }
-        sendJetton(jettonX.pair, ySwap, msg.from);
+        sendJetton(jettonX.pair, ton("0.1"), true, 0, ySwap, msg.from);
         jettonY.amount = yA - ySwap;
         jettonX.amount = xA + xAmount;
         self.j.set(xAddress, jettonX);
