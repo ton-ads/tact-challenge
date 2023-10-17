@@ -25,29 +25,15 @@ contract Task2 with Deployable {
     }
 
     receive(msg: Refund){
-        require(context().sender == self.admin, "!admin");
-        send(SendParameters{to: msg.sender, value: 0, mode: SendRemainingValue + SendIgnoreErrors});
-
-        /*
-        if (context().sender == self.admin) {
-            send(SendParameters{
-              to: msg.sender, 
-              bounce: false,
-              value: context().value, 
-              mode: SendRemainingValue + SendIgnoreErrors
-              }
-            );
-        } else {
-          throw(444);
-        }
-      */
+        require(sender() == self.admin, "!admin");
+        send(SendParameters{to: msg.sender, value: 0, mode: SendRemainingValue});
     }
 
     receive(msg: Slice){
         send(SendParameters{to: self.admin,
                 value: 0,
-                mode: SendRemainingValue + SendIgnoreErrors,
-                body: beginCell().storeAddress(context().sender).storeRef(msg.asCell()).endCell()
+                mode: SendRemainingValue,
+                body: beginCell().storeAddress(sender()).storeRef(msg.asCell()).endCell()
             }
         );
     }
