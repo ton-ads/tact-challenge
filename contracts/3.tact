@@ -86,7 +86,6 @@ contract Task3 with Deployable {
     receive(msg: TokenNotification){
         let jettonA: Bool = self.jettonA.address == sender();
         require(jettonA || self.jettonB.address == sender(), "!jettonAddress");
-        let xAddress: Address = sender();
         let jettonX: Jetton = self.jettonB;
         let jettonY: Jetton = self.jettonA;
         if (jettonA) {
@@ -97,27 +96,22 @@ contract Task3 with Deployable {
         let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
             jettonX.amount = xA + xAmount;
-            // self.j.set(xAddress, jettonX);
-            // return ;
         } else {
-            // let jettonY: Jetton = self.j.get(jettonX.pair)!!;
             let yA: Int = jettonY.amount;
             if (xA == 0 || yA == 0) {
-                sendJetton(xAddress, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
+                sendJetton(jettonX.address, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
                 return ;
             }
             // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
             // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
             let ySwap: Int = yA * self.decimal / xA * xAmount / self.decimal;
             if (yA < ySwap) {
-                sendJetton(xAddress, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
+                sendJetton(jettonX.address, 0, false, SendRemainingValue + SendIgnoreErrors, xAmount, msg.from);
                 return ;
             }
             sendJetton(jettonY.address, ton("0.1"), true, 0, ySwap, msg.from);
             jettonY.amount = yA - ySwap;
             jettonX.amount = xA + xAmount;
-            // self.j.set(xAddress, jettonX);
-            // self.j.set(jettonX.pair, jettonY);
         }
         if (jettonA) {
             self.jettonA = jettonX;
@@ -131,25 +125,14 @@ contract Task3 with Deployable {
     get fun price(jetton: Address): Int {
         if (self.jettonA.address == jetton) {
             return self.jettonB.amount * self.decimal / self.jettonA.amount;
-        } else {
-            return self.jettonA.amount * self.decimal / self.jettonB.amount;
         }
-        /*
-        let jX: Jetton = self.j.get(jetton)!!;
-        let jY: Jetton = self.j.get(jX.pair)!!;
-        return jY.amount * self.decimal / jX.amount;
-        */
+        return self.jettonA.amount * self.decimal / self.jettonB.amount;
     }
 
     get fun balance(jetton: Address): Int {
         if (self.jettonA.address == jetton) {
             return self.jettonA.amount;
-        } else {
-            return self.jettonB.amount;
         }
-        /*
-        let jA: Jetton = self.j.get(jetton)!!;
-        return jA.amount;
-        */
+        return self.jettonB.amount;
     }
 }
