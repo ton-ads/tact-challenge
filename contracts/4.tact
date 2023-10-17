@@ -1,5 +1,4 @@
 import "@stdlib/deploy";
-
 /*
   TASK 4 - NFT locker
   Implement a smart contract that will lock NFT for a period of time specified by the owner.
@@ -29,42 +28,40 @@ import "@stdlib/deploy";
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
     prevOwner: Address;
-    forwardPayload: Slice as remaining; 
+    forwardPayload: Slice as remaining;
 }
-
-message(0x5fcc3d14) Transfer { 
-    queryId: Int as uint64;            
-    newOwner: Address; 
-    responseDestination: Address; 
-    customPayload: Cell?; 
-    forwardAmount: Int as coins; 
-    forwardPayload: Slice as remaining; 
+message(0x5fcc3d14) Transfer {
+    queryId: Int as uint64;
+    newOwner: Address;
+    responseDestination: Address;
+    customPayload: Cell?;
+    forwardAmount: Int as coins;
+    forwardPayload: Slice as remaining;
 }
-
 message NftWithdrawal {
-  queryId: Int as uint64;
-  nftAddress: Address;
+    queryId: Int as uint64;
+    nftAddress: Address;
 }
 
 contract Task4 with Deployable {
-  seed: Int as uint128;
-  
-  init(seed: Int) {
-    self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
-  }
+    seed: Int as uint128;
+    init(seed: Int){
+        self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    }
 
-  receive(msg: OwnershipAssigned) {
-  }
+    receive(msg: OwnershipAssigned){}
 
-  receive(msg: NftWithdrawal) {
-  }
+    receive(msg: NftWithdrawal){}
 
-  get fun time(): Int {
-  }
+    get fun time(): Int {
+        return 0;
+    }
 
-  get fun nft(): Address? {
-  }
+    get fun nft(): Address? {
+        return sender();
+    }
 
-  get fun owner(): Address? {
-  }
+    get fun owner(): Address? {
+        return sender();
+    }
 }
