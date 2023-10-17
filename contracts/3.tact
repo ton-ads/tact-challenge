@@ -84,7 +84,7 @@ contract Task3 with Deployable {
 
     receive(msg: TokenNotification){
         let jAddress: Address = sender();
-        require(jAddress == self.jettonAddressA || jAddress == self.jettonAddressB, "!jettonAddress");
+        // require(jAddress == self.jettonAddressA || jAddress == self.jettonAddressB, "!jettonAddress");
         let jAmount: Int = msg.amount;
         if (msg.from == self.owner) {
             sendJetton(jAddress, jAmount, self.owner);
