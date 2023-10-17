@@ -96,10 +96,10 @@ contract Task3 with Deployable {
     receive(msg: TokenNotification){
         // require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "!jettonAddress");
         require(self.j.get(sender()) != null, "!jettonAddress");
-        let jetton: Jetton = self.j.get(sender())!!;
-        let jA: Int = jetton.amount;
-        let jAddress: Address = sender();
-        let jAmount: Int = msg.amount;
+        let jettonX: Jetton = self.j.get(sender())!!;
+        let xA: Int = jettonX.amount;
+        let xAddress: Address = sender();
+        let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
             // sendJetton(jAddress, jAmount, self.owner);
             /*
@@ -109,11 +109,25 @@ contract Task3 with Deployable {
                 self.bAmount = self.bAmount + jAmount;
             }
             */
-            jetton.amount = jA + jAmount;
+            jettonX.amount = xA + xAmount;
             //TODO: Проверить надо ли записывать в селф или он jetton сам запишет
-            self.j.set(jAddress, jetton);
+            self.j.set(xAddress, jettonX);
             return ;
         }
+        let jettonY: Jetton = self.j.get(jettonX.pair)!!;
+        let yA: Int = jettonX.amount;
+        // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
+        // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
+        let xSwap: Int = xA * self.decimal / yA * xAmount / self.decimal;
+        if (yA < xSwap) {
+            sendJetton(xAddress, xAmount, msg.from);
+            return ;
+        }
+        sendJetton(jettonX.pair, xSwap, msg.from);
+        jettonY.amount = yA - xSwap;
+        jettonX.amount = xA + xAmount;
+        self.j.set(xAddress, jettonX);
+        self.j.set(jettonX.pair, jettonY);
     }
 
     get fun price(jetton: Address): Int {
