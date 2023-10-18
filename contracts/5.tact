@@ -64,21 +64,51 @@ message(0x5fcc3d14) Transfer {
     forwardPayload: Slice as remaining; 
 }
 
+const FORWARD_AMOUNT: Int = ton("0.01");
+const SEND_MODE: Int = 64;
+
+fun sendNft(nftAddress: Address, destination: Address) {
+    send(SendParameters{to: nftAddress,
+            value: 0,
+            bounce: true,
+            mode: SEND_MODE,
+            body: Transfer{queryId: 0,
+                newOwner: destination,
+                responseDestination: destination,
+                customPayload: null,
+                forwardAmount: FORWARD_AMOUNT,
+                forwardPayload: emptySlice()
+            }.toCell()
+        }
+    );
+}
+
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
   count: Int as uint16;
+  profit: Int as coins; 
   nfts: map<Int as uint16, Address>;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
     self.count = 0;
+    self.profit = 0;
     self.nfts = emptyMap();
   }
 
   receive(msg: OwnershipAssigned) {
+    if (msg.prevOwner == self.owner){
+      self.nfts.set(self.count, sender());
+      self.count = self.count + 1;
+      return ;
+    }
     
+    if (context().value < ton("2.1")) {
+      nativeReserve(myBalance(), 0);
+      sendNft(sender(), msg.prevOwner);
+    }
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -91,7 +121,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return self.count * ton("1");
+    return self.profit;
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
