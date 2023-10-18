@@ -1,4 +1,5 @@
 import "@stdlib/deploy";
+
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -47,21 +48,26 @@ message(0xf8a7ea5) TokenTransfer {
     forwardTonAmount: Int as coins; // should be ton("0.01")
     forwardPayload: Slice as remaining; // should be emptySlice()
 }
-
- fun sendJetton(jettonAddress: Address, amount: Int, destination: Address) {
-    send(SendParameters{to: jettonAddress,
-            value: 0,
-            bounce: true,
-            mode: SendRemainingValue + SendIgnoreErrors,
-            body: beginCell().storeUint(0xf8a7ea5, 32).storeUint(0, 64).storeAddress(destination
-            ).storeAddress(myAddress()).storeInt(0, 1).storeCoins(1).storeInt(0, 1).endCell()
-        }
-    );
-}
-
 struct Jetton {
     amount: Int;
     address: Address;
+}
+
+ extends fun sendJetton(self: Jetton, amount: Int, destination: Address) {
+    send(SendParameters{to: self.address,
+            value: 0,
+            bounce: true,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: TokenTransfer{queryId: 0,
+                amount: amount,
+                destination: destination,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: emptySlice()
+            }.toCell()
+        }
+    );
 }
 
 contract Task3 with Deployable {
@@ -90,10 +96,10 @@ contract Task3 with Deployable {
         } else {
             let ySwap: Int = jettonY.amount * self.decimal / jettonX.amount * msg.amount / self.decimal;
             if (jettonY.amount < ySwap) {
-                sendJetton(jettonX.address, msg.amount, msg.from);
+                jettonX.sendJetton(msg.amount, msg.from);
                 return ;
             }
-            sendJetton(jettonY.address, ySwap, msg.from);
+            jettonY.sendJetton(ySwap, msg.from);
             jettonY.amount = jettonY.amount - ySwap;
             jettonX.amount = jettonX.amount + msg.amount;
         }
