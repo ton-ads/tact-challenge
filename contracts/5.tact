@@ -67,26 +67,34 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
+  count: Int as uint16;
+  nfts: map<Int as uint16, Address>;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    self.count = 0;
+    self.nfts = emptyMap();
   }
 
   receive(msg: OwnershipAssigned) {
+    
   }
 
   receive(msg: AdminWithdrawalProfit) {
+    require(sender() == self.owner, "Insufficient privelegies");
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+    require(sender() == self.owner, "Invalid sender");
+    require(ton("1") + self.count * ton("0.08") >= context().value, "Insufficent funds");
   }
 
   get fun profit(): Int { 
-    return 0;
+    return self.count * ton("1");
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return emptyMap();
+    return self.nfts;
   }
 }
