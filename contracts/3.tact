@@ -85,7 +85,8 @@ contract Task3 with Deployable {
 
     receive(msg: TokenNotification){
         let isJettonA: Bool = self.jettonA.address == sender();
-        require(isJettonA || self.jettonB.address == sender(), "!jettonAddress");
+        // require(isJettonA || self.jettonB.address == sender(), "!jettonAddress");
+        nativeThrowUnless(404, isJettonA || self.jettonB.address == sender());
         let jettonX: Jetton = self.jettonB;
         let jettonY: Jetton = self.jettonA;
         if (isJettonA) {
@@ -99,8 +100,6 @@ contract Task3 with Deployable {
                 sendJetton(jettonX.address, msg.amount, msg.from);
                 return ;
             }
-            // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
-            // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
             let ySwap: Int = jettonY.amount * self.decimal / jettonX.amount * msg.amount / self.decimal;
             if (jettonY.amount < ySwap) {
                 sendJetton(jettonX.address, msg.amount, msg.from);
