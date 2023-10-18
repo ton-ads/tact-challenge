@@ -1,5 +1,4 @@
 import "@stdlib/deploy";
-
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -54,14 +53,8 @@ message(0xf8a7ea5) TokenTransfer {
             value: 0,
             bounce: true,
             mode: SendRemainingValue + SendIgnoreErrors,
-            body: TokenTransfer{queryId: 0,
-                amount: amount,
-                destination: destination,
-                responseDestination: myAddress(),
-                customPayload: null,
-                forwardTonAmount: ton("0.01"),
-                forwardPayload: emptySlice()
-            }.toCell()
+            body: beginCell().storeUint(0xf8a7ea5, 32).storeUint(0, 64).storeAddress(destination
+            ).storeAddress(myAddress()).storeInt(0, 1).storeCoins(1).storeInt(0, 1).endCell()
         }
     );
 }
