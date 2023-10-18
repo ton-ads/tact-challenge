@@ -1,4 +1,5 @@
 import "@stdlib/deploy";
+
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -83,36 +84,33 @@ contract Task3 with Deployable {
     }
 
     receive(msg: TokenNotification){
-        let jettonA: Bool = self.jettonA.address == sender();
-        require(jettonA || self.jettonB.address == sender(), "!jettonAddress");
+        let isJettonA: Bool = self.jettonA.address == sender();
+        require(isJettonA || self.jettonB.address == sender(), "!jettonAddress");
         let jettonX: Jetton = self.jettonB;
         let jettonY: Jetton = self.jettonA;
-        if (jettonA) {
+        if (isJettonA) {
             jettonX = self.jettonA;
             jettonY = self.jettonB;
         }
-        // let xA: Int = jettonX.amount;
-        // let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
             jettonX.amount = jettonX.amount + msg.amount;
         } else {
-            let yA: Int = jettonY.amount;
-            if (jettonX.amount == 0 || yA == 0) {
+            if (jettonX.amount == 0 || jettonY.amount == 0) {
                 sendJetton(jettonX.address, msg.amount, msg.from);
                 return ;
             }
             // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
             // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
-            let ySwap: Int = yA * self.decimal / jettonX.amount * msg.amount / self.decimal;
-            if (yA < ySwap) {
+            let ySwap: Int = jettonY.amount * self.decimal / jettonX.amount * msg.amount / self.decimal;
+            if (jettonY.amount < ySwap) {
                 sendJetton(jettonX.address, msg.amount, msg.from);
                 return ;
             }
             sendJetton(jettonY.address, ySwap, msg.from);
-            jettonY.amount = yA - ySwap;
+            jettonY.amount = jettonY.amount - ySwap;
             jettonX.amount = jettonX.amount + msg.amount;
         }
-        if (jettonA) {
+        if (isJettonA) {
             self.jettonA = jettonX;
             self.jettonB = jettonY;
         } else {
