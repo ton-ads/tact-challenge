@@ -50,6 +50,7 @@ message(0xf8a7ea5) TokenTransfer {
 }
 
 const FORWARD_AMOUNT: Int = ton("0.01");
+const SEND_MODE: Int = 66;
 
 struct Jetton {
     amount: Int;
@@ -60,7 +61,7 @@ struct Jetton {
     send(SendParameters{to: self.address,
             value: 0,
             bounce: true,
-            mode: SendRemainingValue + SendIgnoreErrors,
+            mode: SEND_MODE,
             body: TokenTransfer{queryId: 0,
                 amount: amount,
                 destination: destination,
