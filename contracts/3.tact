@@ -1,5 +1,4 @@
 import "@stdlib/deploy";
-
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -93,25 +92,25 @@ contract Task3 with Deployable {
             jettonY = self.jettonB;
         }
         // let xA: Int = jettonX.amount;
-        let xAmount: Int = msg.amount;
+        // let xAmount: Int = msg.amount;
         if (msg.from == self.owner) {
-            jettonX.amount = jettonX.amount + xAmount;
+            jettonX.amount = jettonX.amount + msg.amount;
         } else {
             let yA: Int = jettonY.amount;
             if (jettonX.amount == 0 || yA == 0) {
-                sendJetton(jettonX.address, xAmount, msg.from);
+                sendJetton(jettonX.address, msg.amount, msg.from);
                 return ;
             }
             // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
             // ???: let aSwap: Int = xA / jettonY.amount * xAmount ;
-            let ySwap: Int = yA / jettonX.amount * xAmount;
+            let ySwap: Int = yA * self.decimal / jettonX.amount * msg.amount / self.decimal;
             if (yA < ySwap) {
-                sendJetton(jettonX.address, xAmount, msg.from);
+                sendJetton(jettonX.address, msg.amount, msg.from);
                 return ;
             }
             sendJetton(jettonY.address, ySwap, msg.from);
             jettonY.amount = yA - ySwap;
-            jettonX.amount = jettonX.amount + xAmount;
+            jettonX.amount = jettonX.amount + msg.amount;
         }
         if (jettonA) {
             self.jettonA = jettonX;
