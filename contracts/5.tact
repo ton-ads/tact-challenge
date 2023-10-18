@@ -67,6 +67,10 @@ message(0x5fcc3d14) Transfer {
 const FORWARD_AMOUNT: Int = ton("0.01");
 const SEND_MODE: Int = 64;
 
+message StakeEvent {
+    amount: Int as coins;
+}
+
 fun sendNft(nftAddress: Address, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: 0,
@@ -137,8 +141,10 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+    // dump(context().value);
+    // dump(ton("1") + self.count * ton("0.08"));
     require(sender() == self.owner, "Invalid sender");
-    require(ton("1") + self.count * ton("0.08") >= context().value, "Insufficent funds");
+    require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
     while (self.count > 1) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
