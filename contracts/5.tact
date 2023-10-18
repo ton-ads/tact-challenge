@@ -110,7 +110,7 @@ contract Task5 with Deployable {
       return ;
     }
     
-    if (context().value < ton("2.1")) {
+    if (context().value < ton("2.1") || self.count < 1) {
       sendNft(sender(), context().value, msg.prevOwner);
       return ;
     }
@@ -124,6 +124,7 @@ contract Task5 with Deployable {
       // ???: Как в такт удалять запись в мапе
       self.nfts.set(rnd, sender());
     }
+    self.nfts.set(self.count, null);
     sendNft(nft, context().value - PROFIT_AMOUNT, msg.prevOwner);    
   }
 
