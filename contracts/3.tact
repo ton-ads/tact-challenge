@@ -48,12 +48,15 @@ message(0xf8a7ea5) TokenTransfer {
     forwardTonAmount: Int as coins; // should be ton("0.01")
     forwardPayload: Slice as remaining; // should be emptySlice()
 }
+
+const FORWARD_AMOUNT: Int = ton("0.01");
+
 struct Jetton {
     amount: Int;
     address: Address;
 }
 
- extends fun sendJetton(self: Jetton, amount: Int, destination: Address) {
+ extends fun send(self: Jetton, amount: Int, destination: Address) {
     send(SendParameters{to: self.address,
             value: 0,
             bounce: true,
@@ -63,7 +66,7 @@ struct Jetton {
                 destination: destination,
                 responseDestination: myAddress(),
                 customPayload: null,
-                forwardTonAmount: ton("0.01"),
+                forwardTonAmount: FORWARD_AMOUNT,
                 forwardPayload: emptySlice()
             }.toCell()
         }
@@ -96,10 +99,10 @@ contract Task3 with Deployable {
         } else {
             let ySwap: Int = jettonY.amount * self.decimal / jettonX.amount * msg.amount / self.decimal;
             if (jettonY.amount < ySwap) {
-                jettonX.sendJetton(msg.amount, msg.from);
+                jettonX.send(msg.amount, msg.from);
                 return ;
             }
-            jettonY.sendJetton(ySwap, msg.from);
+            jettonY.send(ySwap, msg.from);
             jettonY.amount = jettonY.amount - ySwap;
             jettonX.amount = jettonX.amount + msg.amount;
         }
