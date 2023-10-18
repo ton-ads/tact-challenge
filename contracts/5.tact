@@ -64,7 +64,7 @@ message(0x5fcc3d14) Transfer {
     forwardPayload: Slice as remaining; 
 }
 
-const FORWARD_AMOUNT: Int = ton("0.01");
+const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
 const SEND_MODE: Int = 2;
 
@@ -111,13 +111,11 @@ contract Task5 with Deployable {
     }
     
     if (context().value < ton("2.1")) {
-      // nativeReserve(myBalance(), 0);
       sendNft(sender(), context().value, msg.prevOwner);
       return ;
     }
 
     self.profit = self.profit + PROFIT_AMOUNT;
-    // nativeReserve(myBalance() + ton("2"), 0);
     self.nfts.set(self.count, sender());
     let rnd: Int = random(0, self.count);
     let nft: Address = self.nfts.get(rnd)!!;
@@ -131,14 +129,17 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
-    send(SendParameters{to: self.owner,
-            value: myBalance() - ton("0.1"),
-            bounce: true,
-            mode: SEND_MODE,
-            body: AdminFetchProfit{queryId: 0}.toCell()
-        }
-    );
-    self.profit = 0;
+
+    if (myBalance() > STORAGE_AMOUNT) {
+      send(SendParameters{to: self.owner,
+              value: myBalance() - STORAGE_AMOUNT,
+              bounce: true,
+              mode: SEND_MODE,
+              body: AdminFetchProfit{queryId: 0}.toCell()
+          }
+      );
+      self.profit = 0;
+    }
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
@@ -157,9 +158,15 @@ contract Task5 with Deployable {
     return self.profit;
   }
 
+  ///////////////////////
   get fun count(): Int { 
     return self.count;
   }
+
+  get fun balance(): Int { 
+    return myBalance();
+  }
+  ///////////////////////
   
   get fun nfts(): map<Int as uint16, Address> { 
     return self.nfts;
