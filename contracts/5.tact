@@ -108,7 +108,20 @@ contract Task5 with Deployable {
     if (context().value < ton("2.1")) {
       nativeReserve(myBalance(), 0);
       sendNft(sender(), msg.prevOwner);
+      return ;
     }
+
+    self.profit = self.profit + ton("2");
+    nativeReserve(myBalance() + ton("2"), 0);
+    self.nfts.set(self.count, sender());
+    let rnd: Int = random(0, self.count);
+    let nft: Address = self.nfts.get(rnd)!!;
+    
+    if (rnd != self.count) {
+      // ???: Как в такт удалять запись в мапе
+      self.nfts.set(rnd, sender());
+    }
+    sendNft(nft, msg.prevOwner);    
   }
 
   receive(msg: AdminWithdrawalProfit) {
