@@ -1,4 +1,5 @@
 import "@stdlib/deploy";
+
 /*
   TASK 3 - DEX
   Create a simple jetton dex contract that trades one pair of jettons: A and B.
@@ -95,10 +96,6 @@ contract Task3 with Deployable {
         if (msg.from == self.owner) {
             jettonX.amount = jettonX.amount + msg.amount;
         } else {
-            if (jettonX.amount == 0 || jettonY.amount == 0) {
-                sendJetton(jettonX.address, msg.amount, msg.from);
-                return ;
-            }
             let ySwap: Int = jettonY.amount * self.decimal / jettonX.amount * msg.amount / self.decimal;
             if (jettonY.amount < ySwap) {
                 sendJetton(jettonX.address, msg.amount, msg.from);
@@ -109,11 +106,11 @@ contract Task3 with Deployable {
             jettonX.amount = jettonX.amount + msg.amount;
         }
         if (isJettonA) {
-            self.jettonA = jettonX;
-            self.jettonB = jettonY;
+            self.jettonA.amount = jettonX.amount;
+            self.jettonB.amount = jettonY.amount;
         } else {
-            self.jettonA = jettonY;
-            self.jettonB = jettonX;
+            self.jettonA.amount = jettonY.amount;
+            self.jettonB.amount = jettonX.amount;
         }
     }
 
