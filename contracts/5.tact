@@ -126,11 +126,24 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
+    send(SendParameters{to: self.owner,
+            value: myBalance() - ton("0.1"),
+            bounce: true,
+            mode: SEND_MODE,
+            body: AdminFetchProfit{queryId: 0}.toCell()
+        }
+    );
+    self.profit = 0;
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
     require(sender() == self.owner, "Invalid sender");
     require(ton("1") + self.count * ton("0.08") >= context().value, "Insufficent funds");
+    while (self.count > 1) {            
+      self.count = self.count - 1;
+      let nft: Address = self.nfts.get(self.count)!!;
+      sendNft(nft, self.owner);
+    }
   }
 
   get fun profit(): Int { 
