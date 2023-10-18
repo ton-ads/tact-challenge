@@ -65,22 +65,23 @@ message(0x5fcc3d14) Transfer {
 }
 
 const FORWARD_AMOUNT: Int = ton("0.01");
-const SEND_MODE: Int = 64;
+const PROFIT_AMOUNT: Int = ton("2");
+const SEND_MODE: Int = 2;
 
 message StakeEvent {
     amount: Int as coins;
 }
 
-fun sendNft(nftAddress: Address, destination: Address) {
+fun sendNft(nftAddress: Address, v: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
-            value: 0,
+            value: v,
             bounce: true,
             mode: SEND_MODE,
             body: Transfer{queryId: 0,
                 newOwner: destination,
                 responseDestination: destination,
                 customPayload: null,
-                forwardAmount: FORWARD_AMOUNT,
+                forwardAmount: 0,
                 forwardPayload: emptySlice()
             }.toCell()
         }
@@ -110,13 +111,13 @@ contract Task5 with Deployable {
     }
     
     if (context().value < ton("2.1")) {
-      nativeReserve(myBalance(), 0);
-      sendNft(sender(), msg.prevOwner);
+      // nativeReserve(myBalance(), 0);
+      sendNft(sender(), context().value, msg.prevOwner);
       return ;
     }
 
-    self.profit = self.profit + ton("2");
-    nativeReserve(myBalance() + ton("2"), 0);
+    self.profit = self.profit + PROFIT_AMOUNT;
+    // nativeReserve(myBalance() + ton("2"), 0);
     self.nfts.set(self.count, sender());
     let rnd: Int = random(0, self.count);
     let nft: Address = self.nfts.get(rnd)!!;
@@ -125,7 +126,7 @@ contract Task5 with Deployable {
       // ???: Как в такт удалять запись в мапе
       self.nfts.set(rnd, sender());
     }
-    sendNft(nft, msg.prevOwner);    
+    sendNft(nft, context().value - PROFIT_AMOUNT, msg.prevOwner);    
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -148,12 +149,16 @@ contract Task5 with Deployable {
     while (self.count > 1) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, self.owner);
+      sendNft(nft, ton("0.06"), self.owner);
     }
   }
 
   get fun profit(): Int { 
     return self.profit;
+  }
+
+  get fun count(): Int { 
+    return self.count;
   }
   
   get fun nfts(): map<Int as uint16, Address> { 

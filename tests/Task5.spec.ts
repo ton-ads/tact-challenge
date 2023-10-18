@@ -9,6 +9,7 @@ describe('Task5', () => {
     let task5: SandboxContract<Task5>;
     let deployer: SandboxContract<TreasuryContract>;
     let nft: SandboxContract<TreasuryContract>;
+    let nft2: SandboxContract<TreasuryContract>;
     let sender: SandboxContract<TreasuryContract>;
 
     it('should deploy', async () => {
@@ -26,6 +27,7 @@ describe('Task5', () => {
 
         deployer = await blockchain.treasury('deployer');
         nft = await blockchain.treasury('nft');
+        nft2 = await blockchain.treasury('nft2');
         sender = await blockchain.treasury('sender');
 
         task5 = blockchain.openContract(await Task5.fromInit(
@@ -101,6 +103,168 @@ describe('Task5', () => {
             to: task5.address,
             success: false,
         });
+    });
+
+    it('should OwnershipAssigned admin', async () => {
+        const sentMessageResult = await task5.send(
+            nft.getSender(),
+            {
+                value: toNano('0.1'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: deployer.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: nft.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const counterAfter = await task5.getCount();
+        console.log('count Nft after', counterAfter);
+
+        const mapAfter = await task5.getNfts();
+        console.log('map Nfts after', mapAfter);
+    });
+
+    it('should OwnershipAssigned sender get back', async () => {
+        const sentMessageResult = await task5.send(
+            nft2.getSender(),
+            {
+                value: toNano('0.1'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: sender.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: nft2.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const counterAfter = await task5.getCount();
+        console.log('count Nft after', counterAfter);
+
+        const mapAfter = await task5.getNfts();
+        console.log('map Nfts after', mapAfter);
+    });
+
+    it('should OwnershipAssigned sender get swap', async () => {
+
+        for (let i = 0; i < 5; i++) {
+            const n = await blockchain.treasury('nft-' + i);
+            await task5.send(
+                n.getSender(),
+                {
+                    value: toNano('0.1'),
+                },
+                {
+                    $$type: 'OwnershipAssigned',
+                    queryId: 0n,
+                    prevOwner: deployer.address,
+                    forwardPayload: beginCell().endCell()
+                }
+            )
+        }
+
+        const counterBefore = await task5.getCount();
+        console.log('count Nft before', counterBefore);
+
+        const sentMessageResult = await task5.send(
+            nft2.getSender(),
+            {
+                value: toNano('2.1'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: sender.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: nft2.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const counterAfter = await task5.getCount();
+        console.log('count Nft after', counterAfter);
+
+        const mapAfter = await task5.getNfts();
+        console.log('map Nfts after', mapAfter);
+
+        const profitAfter = await task5.getProfit();
+        console.log('contract profit after', profitAfter);
+    });
+
+    it('should OwnershipAssigned sender get swap', async () => {
+
+        for (let i = 0; i < 5; i++) {
+            const n = await blockchain.treasury('nft-' + i);
+            await task5.send(
+                n.getSender(),
+                {
+                    value: toNano('0.1'),
+                },
+                {
+                    $$type: 'OwnershipAssigned',
+                    queryId: 0n,
+                    prevOwner: deployer.address,
+                    forwardPayload: beginCell().endCell()
+                }
+            )
+        }
+
+        const counterBefore = await task5.getCount();
+        console.log('count Nft before', counterBefore);
+
+        const sentMessageResult = await task5.send(
+            nft2.getSender(),
+            {
+                value: toNano('2.1'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: sender.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: nft2.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const counterAfter = await task5.getCount();
+        console.log('count Nft after', counterAfter);
+
+        const mapAfter = await task5.getNfts();
+        console.log('map Nfts after', mapAfter);
+
+        const profitAfter = await task5.getProfit();
+        console.log('contract profit after', profitAfter);
     });
 });
 
