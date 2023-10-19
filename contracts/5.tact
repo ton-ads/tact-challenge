@@ -94,7 +94,7 @@ contract Task5 with Deployable {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
     self.count = 0;
-    self.profit = 0;
+    self.profit = ton("0");
     self.nfts = emptyMap();
   }
 
@@ -134,7 +134,7 @@ contract Task5 with Deployable {
               body: AdminFetchProfit{queryId: msg.queryId}.toCell()
           }
       );
-    self.profit = 0;
+    self.profit = ton("0");
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
@@ -149,7 +149,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return myBalance() - STORAGE_AMOUNT;
+    return self.profit - STORAGE_AMOUNT;
   }
 
   ///////////////////////
