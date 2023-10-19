@@ -110,7 +110,9 @@ contract Task5 with Deployable {
     }
     
     if (context().value < ton("2.1")) {
-      sendNft(sender(), 0, SendRemainingValue, msg.prevOwner);
+      if (context().value > ton("0.05")) {
+        sendNft(sender(), 0, SendRemainingValue, msg.prevOwner);
+      }
       return ;
     }
 
@@ -153,7 +155,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return self.profit - STORAGE_AMOUNT;
+    return myBalance() - STORAGE_AMOUNT;
   }
 
   ///////////////////////
