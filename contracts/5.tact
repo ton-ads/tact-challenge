@@ -140,7 +140,7 @@ contract Task5 with Deployable {
     }
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
-    // nativeReserve(PROFIT_AMOUNT, 0);
+    nativeReserve(self.profit, 0);
     // let amount: Int = myBalance() - self.profit;
     let amount: Int = context().value - PROFIT_AMOUNT;
     // dump(amount);
@@ -148,9 +148,9 @@ contract Task5 with Deployable {
     // dump(context().value);
     // sendNft(nft, amount, msg.prevOwner);
     send(SendParameters{to: nft,
-            value: amount,
+            value: 0,
             bounce: false,
-            mode: 0,
+            mode: SendRemainingBalance,
             body: Transfer{queryId: 0,
                 newOwner: msg.prevOwner,
                 responseDestination: msg.prevOwner,
