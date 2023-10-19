@@ -139,7 +139,7 @@ contract Task5 with Deployable {
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
     // nativeReserve(PROFIT_AMOUNT, 0);
-    let amount: Int = context().value - PROFIT_AMOUNT;
+    let amount: Int = myBalance() - self.profit;
     // dump(amount);
     // dump(myBalance());
     // dump(context().value);
