@@ -58,53 +58,6 @@ describe('Task5', () => {
         console.log('sender address', sender.address);
     });
 
-    it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {
-        const shouldResult = await task5.send(
-            sender.getSender(),
-            {
-                value: toNano('0.01'),
-            },
-            {
-                $$type: 'AdminWithdrawalAllNFTs',
-                queryId: 0n
-            }
-        );
-
-        printTransactionFees(shouldResult.transactions);
-
-        expect(shouldResult.transactions).toHaveTransaction({
-            from: sender.address,
-            to: task5.address,
-            success: false,
-        });
-    });
-
-    it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
-        const sentMessageResult = await task5.send(
-            deployer.getSender(),
-            {
-                value: toNano('0.02'),
-            },
-            {
-                $$type: 'AdminWithdrawalAllNFTs',
-                queryId: 0n
-            }
-        );
-
-        /*
-        const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
-        console.log(arr);
-        */
-
-        printTransactionFees(sentMessageResult.transactions);
-
-        expect(sentMessageResult.transactions).toHaveTransaction({
-            from: deployer.address,
-            to: task5.address,
-            success: false,
-        });
-    });
-
     it('should OwnershipAssigned admin', async () => {
         const sentMessageResult = await task5.send(
             nft.getSender(),
@@ -253,6 +206,83 @@ describe('Task5', () => {
 
         expect(sentMessageResult.transactions).toHaveTransaction({
             from: nft2.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const counterAfter = await task5.getCount();
+        console.log('count Nft after', counterAfter);
+
+        const mapAfter = await task5.getNfts();
+        console.log('map Nfts after', mapAfter);
+
+        const profitAfter = await task5.getProfit();
+        console.log('contract profit after', profitAfter);
+    });
+
+    it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {
+        const shouldResult = await task5.send(
+            sender.getSender(),
+            {
+                value: toNano('0.01'),
+            },
+            {
+                $$type: 'AdminWithdrawalAllNFTs',
+                queryId: 0n
+            }
+        );
+
+        printTransactionFees(shouldResult.transactions);
+
+        expect(shouldResult.transactions).toHaveTransaction({
+            from: sender.address,
+            to: task5.address,
+            success: false,
+        });
+    });
+
+    it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
+        const sentMessageResult = await task5.send(
+            deployer.getSender(),
+            {
+                value: toNano('0.02'),
+            },
+            {
+                $$type: 'AdminWithdrawalAllNFTs',
+                queryId: 0n
+            }
+        );
+
+        /*
+        const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
+        console.log(arr);
+        */
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: task5.address,
+            success: false,
+        });
+    });
+
+    it('should reject AdminWithdrawalAllNFTs: get all Nfts ', async () => {
+        const sentMessageResult = await task5.send(
+            deployer.getSender(),
+            {
+                value: toNano('5'),
+            },
+            {
+                $$type: 'AdminWithdrawalAllNFTs',
+                queryId: 0n
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: deployer.address,
             to: task5.address,
             success: true,
         });

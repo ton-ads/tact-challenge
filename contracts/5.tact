@@ -148,7 +148,7 @@ contract Task5 with Deployable {
     // dump(ton("1") + self.count * ton("0.08"));
     require(sender() == self.owner, "Invalid sender");
     require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
-    while (self.count > 1) {            
+    while (self.count > 0) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
       sendNft(nft, ton("0.06"), self.owner);
@@ -157,7 +157,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return self.profit - STORAGE_AMOUNT;
+    return myBalance() - STORAGE_AMOUNT;
   }
 
   ///////////////////////
