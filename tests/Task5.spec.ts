@@ -363,7 +363,7 @@ describe('Task5', () => {
         expect(sentMessageResult.transactions).toHaveTransaction({
             from: deployer.address,
             to: task5.address,
-            success: false,
+            exitCode: 62515,
         });
     });
 
