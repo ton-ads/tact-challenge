@@ -72,11 +72,11 @@ message StakeEvent {
     amount: Int as coins;
 }
 
-fun sendNft(nftAddress: Address, v: Int, destination: Address) {
+fun sendNft(nftAddress: Address, v: Int, mode: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: v,
             bounce: true,
-            mode: 0,
+            mode: mode,
             body: Transfer{queryId: 0,
                 newOwner: destination,
                 responseDestination: destination,
@@ -112,7 +112,8 @@ contract Task5 with Deployable {
     
     if (context().value < ton("2.1") || self.count < 1) {
       // let amount: Int = myBalance() - context().value - self.profit;
-      // sendNft(sender(), amount, msg.prevOwner);
+      sendNft(sender(), 0, SendRemainingValue, msg.prevOwner);
+      /*
       send(SendParameters{to: sender(),
             value: 0,
             bounce: true,
@@ -126,6 +127,7 @@ contract Task5 with Deployable {
             }.toCell()
         }
       );
+      */
       return ;
     }
 
@@ -185,14 +187,12 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    // dump(context().value);
-    // dump(ton("1") + self.count * ton("0.08"));
     require(sender() == self.owner, "Invalid sender");
     require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
     while (self.count > 0) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, ton("0.01"), self.owner);
+      sendNft(nft, ton("0.08"), 0, self.owner);
       self.nfts.set(self.count, null);
     }
   }
