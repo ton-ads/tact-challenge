@@ -66,7 +66,7 @@ message(0x5fcc3d14) Transfer {
 
 const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
-const SEND_MODE: Int = 0;
+const SEND_MODE: Int = 64;
 
 message StakeEvent {
     amount: Int as coins;
@@ -111,7 +111,7 @@ contract Task5 with Deployable {
     }
     
     if (context().value < ton("2.1") || self.count < 1) {
-      let amount: Int = context().value;
+      let amount: Int = myBalance() - context().value - self.profit;
       sendNft(sender(), amount, msg.prevOwner);
       return ;
     }
@@ -125,7 +125,7 @@ contract Task5 with Deployable {
     }
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
-    let amount: Int = context().value - PROFIT_AMOUNT;
+    let amount: Int = myBalance() - context().value - self.profit;
     sendNft(nft, amount, msg.prevOwner);    
   }
 
