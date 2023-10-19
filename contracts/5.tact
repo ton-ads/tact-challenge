@@ -152,11 +152,12 @@ contract Task5 with Deployable {
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
       sendNft(nft, ton("0.06"), self.owner);
+      self.nfts.set(self.count, null);
     }
   }
 
   get fun profit(): Int { 
-    return self.profit - STORAGE_AMOUNT;
+    return myBalance() - STORAGE_AMOUNT;
   }
 
   ///////////////////////
