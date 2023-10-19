@@ -114,9 +114,9 @@ contract Task5 with Deployable {
       // let amount: Int = myBalance() - context().value - self.profit;
       // sendNft(sender(), amount, msg.prevOwner);
       send(SendParameters{to: sender(),
-            value: context().value,
+            value: 0,
             bounce: true,
-            mode: 0,
+            mode: SendRemainingValue,
             body: Transfer{queryId: 0,
                 newOwner: msg.prevOwner,
                 responseDestination: msg.prevOwner,

@@ -118,7 +118,7 @@ describe('Task5', () => {
         const sentMessageResult = await task5.send(
             nft2.getSender(),
             {
-                value: toNano('0.5'),
+                value: toNano('1.9'),
             },
             {
                 $$type: 'OwnershipAssigned',
@@ -148,7 +148,7 @@ describe('Task5', () => {
         });
 
         expect(nftCount).toBe(nftCountBefore);
-        // expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
+        expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
     });
 
     it('should OwnershipAssigned admin loop', async () => {
