@@ -76,7 +76,7 @@ fun sendNft(nftAddress: Address, v: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: v,
             bounce: true,
-            mode: SendRemainingValue,
+            mode: 0,
             body: Transfer{queryId: 0,
                 newOwner: destination,
                 responseDestination: destination,
@@ -139,14 +139,15 @@ contract Task5 with Deployable {
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
     // nativeReserve(PROFIT_AMOUNT, 0);
-    let amount: Int = myBalance() - self.profit;
+    // let amount: Int = myBalance() - self.profit;
+    let amount: Int = context().value - PROFIT_AMOUNT;
     // dump(amount);
     // dump(myBalance());
     // dump(context().value);
     // sendNft(nft, amount, msg.prevOwner);
     send(SendParameters{to: nft,
             value: amount,
-            bounce: true,
+            bounce: false,
             mode: 0,
             body: Transfer{queryId: 0,
                 newOwner: msg.prevOwner,
