@@ -143,7 +143,7 @@ contract Task5 with Deployable {
     while (self.count > 0) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, msg.queryId, ton("0.08"), 0, self.owner);
+      sendNft(nft, 0, ton("0.08"), 0, self.owner);
       self.nfts.set(self.count, null);
     }
   }
