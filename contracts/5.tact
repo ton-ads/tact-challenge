@@ -67,12 +67,12 @@ message(0x5fcc3d14) Transfer {
 const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
 
-fun sendNft(nftAddress: Address, v: Int, mode: Int, destination: Address) {
+fun sendNft(nftAddress: Address, queryId: Int, v: Int, mode: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: v,
             bounce: true,
             mode: mode,
-            body: Transfer{queryId: 0,
+            body: Transfer{queryId: queryId,
                 newOwner: destination,
                 responseDestination: destination,
                 customPayload: null,
@@ -102,22 +102,11 @@ contract Task5 with Deployable {
     if (msg.prevOwner == self.owner){
       self.nfts.set(self.count, sender());
       self.count = self.count + 1;
-      /// ---> ????
-      send(SendParameters{to: self.owner,
-              value: 0,
-              bounce: true,
-              mode: SendRemainingValue,
-              body: AdminFetchProfit{queryId: 0}.toCell()
-          }
-      );
-      /// <--- ???
       return ;
     }
     
     if (context().value < ton("2.1")) {
-      if (context().value > ton("0.015")) {
-        sendNft(sender(), 0, SendRemainingValue, msg.prevOwner);
-      }
+        sendNft(sender(), msg.queryId, 0, SendRemainingValue, msg.prevOwner);
       return ;
     }
 
@@ -131,7 +120,7 @@ contract Task5 with Deployable {
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
     nativeReserve(self.profit, 0);
-    sendNft(nft, 0, SendRemainingBalance, msg.prevOwner);
+    sendNft(nft, msg.queryId, 0, SendRemainingBalance, msg.prevOwner);
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -142,7 +131,7 @@ contract Task5 with Deployable {
               value: amount,
               bounce: true,
               mode: SendRemainingValue,
-              body: AdminFetchProfit{queryId: 0}.toCell()
+              body: AdminFetchProfit{queryId: msg.queryId}.toCell()
           }
       );
     self.profit = 0;
@@ -154,7 +143,7 @@ contract Task5 with Deployable {
     while (self.count > 0) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, ton("0.08"), 0, self.owner);
+      sendNft(nft, msg.queryId, ton("0.08"), 0, self.owner);
       self.nfts.set(self.count, null);
     }
   }
