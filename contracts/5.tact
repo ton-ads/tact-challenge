@@ -110,24 +110,8 @@ contract Task5 with Deployable {
       return ;
     }
     
-    if (context().value < ton("2.1") || self.count < 1) {
-      // let amount: Int = myBalance() - context().value - self.profit;
+    if (context().value < ton("2.1")) {
       sendNft(sender(), 0, SendRemainingValue, msg.prevOwner);
-      /*
-      send(SendParameters{to: sender(),
-            value: 0,
-            bounce: true,
-            mode: SendRemainingValue,
-            body: Transfer{queryId: 0,
-                newOwner: msg.prevOwner,
-                responseDestination: msg.prevOwner,
-                customPayload: null,
-                forwardAmount: 0,
-                forwardPayload: emptySlice()
-            }.toCell()
-        }
-      );
-      */
       return ;
     }
 
@@ -141,34 +125,12 @@ contract Task5 with Deployable {
     self.nfts.set(self.count, null);
     self.profit = self.profit + PROFIT_AMOUNT;
     nativeReserve(self.profit, 0);
-    // let amount: Int = myBalance() - self.profit;
-    let amount: Int = context().value - PROFIT_AMOUNT;
-    // dump(amount);
-    // dump(myBalance());
-    // dump(context().value);
-    // sendNft(nft, amount, msg.prevOwner);
-    send(SendParameters{to: nft,
-            value: 0,
-            bounce: false,
-            mode: SendRemainingBalance,
-            body: Transfer{queryId: 0,
-                newOwner: msg.prevOwner,
-                responseDestination: msg.prevOwner,
-                customPayload: null,
-                forwardAmount: 0,
-                forwardPayload: emptySlice()
-            }.toCell()
-        }
-    );
+    sendNft(nft, 0, SendRemainingBalance, msg.prevOwner);
   }
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
-    // nativeReserve(STORAGE_AMOUNT, 0);
     let amount: Int = myBalance() - context().value - STORAGE_AMOUNT;
-    // dump(amount);
-    // dump(myBalance());
-    // dump(context().value);
     require(amount > 0, "Insufficient balance");
     send(SendParameters{to: self.owner,
               value: amount,
@@ -178,12 +140,6 @@ contract Task5 with Deployable {
           }
       );
     self.profit = 0;
-    /*
-    if (myBalance() > STORAGE_AMOUNT) {
-      
-      
-    }
-    */
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
