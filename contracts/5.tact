@@ -111,21 +111,22 @@ contract Task5 with Deployable {
     }
     
     if (context().value < ton("2.1") || self.count < 1) {
-      sendNft(sender(), context().value, msg.prevOwner);
+      let amount: Int = context().value;
+      sendNft(sender(), amount, msg.prevOwner);
       return ;
     }
 
-    self.profit = self.profit + PROFIT_AMOUNT;
     self.nfts.set(self.count, sender());
     let rnd: Int = random(0, self.count);
     let nft: Address = self.nfts.get(rnd)!!;
     
     if (rnd != self.count) {
-      // ???: Как в такт удалять запись в мапе
       self.nfts.set(rnd, sender());
     }
     self.nfts.set(self.count, null);
-    sendNft(nft, context().value - PROFIT_AMOUNT, msg.prevOwner);    
+    self.profit = self.profit + PROFIT_AMOUNT;
+    let amount: Int = context().value - PROFIT_AMOUNT;
+    sendNft(nft, amount, msg.prevOwner);    
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -136,7 +137,7 @@ contract Task5 with Deployable {
     send(SendParameters{to: self.owner,
               value: amount,
               bounce: true,
-              mode: 64,
+              mode: SendRemainingValue,
               body: AdminFetchProfit{queryId: 0}.toCell()
           }
       );
@@ -157,7 +158,7 @@ contract Task5 with Deployable {
     while (self.count > 0) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, ton("0.06"), self.owner);
+      sendNft(nft, ton("0.01"), self.owner);
       self.nfts.set(self.count, null);
     }
   }
