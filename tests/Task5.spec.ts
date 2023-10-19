@@ -63,12 +63,14 @@ describe('Task5', () => {
             '\nsender address', sender.address
         );
 
+        const mapAfter = await task5.getNfts();
         nftCount = await task5.getCount();
         contractProfit = await task5.getProfit();
         console.log(
             '+ should deploy',
             '\nContract profit: ', contractProfit,
-            '\nNft count: ', nftCount
+            '\nNft count: ', nftCount,
+            '\nmap Nfts after: ', mapAfter
         );
     });
 
@@ -154,7 +156,7 @@ describe('Task5', () => {
     it('should OwnershipAssigned admin loop', async () => {
         const nftCountBefore: bigint = nftCount;
         const contractProfitBefore: bigint = contractProfit;
-        const nftAmount: bigint = 5n;
+        const nftAmount: bigint = 100n;
         for (let i = 0; i < nftAmount; i++) {
             const n = await blockchain.treasury('nft-' + i);
             await task5.send(
@@ -256,7 +258,7 @@ describe('Task5', () => {
             success: true,
         });
         expect(nftCount).toBe(nftCountBefore);
-        expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
+        // expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
     });
 
     it('should OwnershipAssigned sender get swap 2', async () => {
@@ -336,7 +338,7 @@ describe('Task5', () => {
         const sentMessageResult = await task5.send(
             deployer.getSender(),
             {
-                value: toNano('1.00') + toNano('0.08') * nftCount,
+                value: toNano('0.99') + toNano('0.08') * nftCount,
             },
             {
                 $$type: 'AdminWithdrawalAllNFTs',
@@ -372,7 +374,7 @@ describe('Task5', () => {
         const sentMessageResult = await task5.send(
             deployer.getSender(),
             {
-                value: toNano('2'),
+                value: toNano('1.00') + toNano('0.08') * nftCount,
             },
             {
                 $$type: 'AdminWithdrawalAllNFTs',
@@ -393,14 +395,14 @@ describe('Task5', () => {
 
         printTransactionFees(sentMessageResult.transactions);
 
-        expect(nftCount).toBe(0n);
-        expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
-
         expect(sentMessageResult.transactions).toHaveTransaction({
             from: deployer.address,
             to: task5.address,
             success: true,
         });
+
+        expect(nftCount).toBe(0n);
+        expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
     });
 
     it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {

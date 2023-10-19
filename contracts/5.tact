@@ -94,7 +94,7 @@ contract Task5 with Deployable {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
     self.count = 0;
-    self.profit = ton("0");
+    self.profit = 0;
     self.nfts = emptyMap();
   }
 
@@ -134,22 +134,34 @@ contract Task5 with Deployable {
               body: AdminFetchProfit{queryId: msg.queryId}.toCell()
           }
       );
-    self.profit = ton("0");
+    self.profit = 0;
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    require(sender() == self.owner, "Invalid sender");
-    require((ton("1") + self.count * ton("0.08")) < context().value, "Insufficent funds");
-    while (self.count > 0) {            
+    require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
+    require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
+    let messageCount: Int = 0;
+    while (self.count > 0 && messageCount < 20) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, 0, ton("0.08"), 0, self.owner);
+      sendNft(nft, msg.queryId, ton("0.08"), 0, self.owner);
       self.nfts.set(self.count, null);
+      messageCount = messageCount + 1;
+    }
+
+    if (self.count > 0) {
+          send(SendParameters{to: myAddress(),
+              value: 0,
+              bounce: true,
+              mode: SendRemainingValue,
+              body: AdminWithdrawalAllNFTs{queryId: msg.queryId}.toCell()
+          }
+      );
     }
   }
 
   get fun profit(): Int { 
-    return self.profit - STORAGE_AMOUNT;
+    return myBalance() - STORAGE_AMOUNT;
   }
 
   ///////////////////////
