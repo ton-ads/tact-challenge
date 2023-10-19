@@ -66,7 +66,6 @@ message(0x5fcc3d14) Transfer {
 
 const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
-const SEND_MODE: Int = 64;
 
 message StakeEvent {
     amount: Int as coins;
@@ -154,7 +153,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return myBalance() - STORAGE_AMOUNT;
+    return self.profit - STORAGE_AMOUNT;
   }
 
   ///////////////////////
