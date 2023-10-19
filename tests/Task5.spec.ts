@@ -296,6 +296,30 @@ describe('Task5', () => {
         const profitAfter = await task5.getProfit();
         console.log('contract profit after', profitAfter);
     });
+
+    it('should reject AdminWithdrawalProfit: get profit ', async () => {
+        const sentMessageResult = await task5.send(
+            deployer.getSender(),
+            {
+                value: toNano('0.01'),
+            },
+            {
+                $$type: 'AdminWithdrawalProfit',
+                queryId: 0n
+            }
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: task5.address,
+            success: true,
+        });
+
+        const profitAfter = await task5.getProfit();
+        console.log('contract profit after', profitAfter);
+    });
 });
 
 

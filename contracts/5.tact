@@ -66,7 +66,7 @@ message(0x5fcc3d14) Transfer {
 
 const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
-const SEND_MODE: Int = 2;
+const SEND_MODE: Int = 0;
 
 message StakeEvent {
     amount: Int as coins;
@@ -130,17 +130,23 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
-
-    if (myBalance() > STORAGE_AMOUNT) {
-      send(SendParameters{to: self.owner,
-              value: myBalance() - STORAGE_AMOUNT,
+    // nativeReserve(STORAGE_AMOUNT, 0);
+    let amount: Int = myBalance() - context().value - STORAGE_AMOUNT;
+    require(amount > 0, "Insufficient balance");
+    send(SendParameters{to: self.owner,
+              value: amount,
               bounce: true,
-              mode: SEND_MODE,
+              mode: 64,
               body: AdminFetchProfit{queryId: 0}.toCell()
           }
       );
-      self.profit = 0;
+    self.profit = 0;
+    /*
+    if (myBalance() > STORAGE_AMOUNT) {
+      
+      
     }
+    */
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
