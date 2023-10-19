@@ -157,7 +157,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return myBalance() - STORAGE_AMOUNT;
+    return self.profit - STORAGE_AMOUNT;
   }
 
   ///////////////////////
