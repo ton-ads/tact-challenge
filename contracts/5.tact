@@ -67,10 +67,6 @@ message(0x5fcc3d14) Transfer {
 const STORAGE_AMOUNT: Int = ton("0.1");
 const PROFIT_AMOUNT: Int = ton("2");
 
-message StakeEvent {
-    amount: Int as coins;
-}
-
 fun sendNft(nftAddress: Address, v: Int, mode: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: v,
@@ -106,6 +102,15 @@ contract Task5 with Deployable {
     if (msg.prevOwner == self.owner){
       self.nfts.set(self.count, sender());
       self.count = self.count + 1;
+      /// ---> ????
+      send(SendParameters{to: self.owner,
+              value: 0,
+              bounce: true,
+              mode: SendRemainingValue,
+              body: AdminFetchProfit{queryId: 0}.toCell()
+          }
+      );
+      /// <--- ???
       return ;
     }
     

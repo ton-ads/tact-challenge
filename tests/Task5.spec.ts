@@ -222,42 +222,6 @@ describe('Task5', () => {
         printTransactionFees(sentMessageResult.transactions);
     });
 
-    it('should AdminWithdrawalProfit: get profit ', async () => {
-        const nftCountBefore: bigint = nftCount;
-        const contractProfitBefore: bigint = contractProfit;
-
-        const sentMessageResult = await task5.send(
-            deployer.getSender(),
-            {
-                value: toNano('0.05'),
-            },
-            {
-                $$type: 'AdminWithdrawalProfit',
-                queryId: 0n
-            }
-        );
-
-        nftCount = await task5.getCount();
-        contractProfit = await task5.getProfit();
-
-        console.log(
-            '+ should AdminWithdrawalProfit: get profit',
-            '\nContract profit: ', contractProfit,
-            '\nNft count: ', nftCount
-        );
-
-        expect(sentMessageResult.transactions).toHaveTransaction({
-            from: deployer.address,
-            to: task5.address,
-            success: true,
-        });
-
-        expect(nftCount).toBe(nftCountBefore);
-        expect(contractProfit).toBeLessThanOrEqual(contractProfitBefore);
-
-        printTransactionFees(sentMessageResult.transactions);
-    });
-
     it('should OwnershipAssigned sender get swap', async () => {
         const nftCountBefore: bigint = nftCount;
         const contractProfitBefore: bigint = contractProfit;
@@ -330,6 +294,42 @@ describe('Task5', () => {
         });
         expect(nftCount).toBe(nftCountBefore);
         expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
+    });
+
+    it('should AdminWithdrawalProfit: get profit ', async () => {
+        const nftCountBefore: bigint = nftCount;
+        const contractProfitBefore: bigint = contractProfit;
+
+        const sentMessageResult = await task5.send(
+            deployer.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'AdminWithdrawalProfit',
+                queryId: 0n
+            }
+        );
+
+        nftCount = await task5.getCount();
+        contractProfit = await task5.getProfit();
+
+        console.log(
+            '+ should AdminWithdrawalProfit: get profit',
+            '\nContract profit: ', contractProfit,
+            '\nNft count: ', nftCount
+        );
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: task5.address,
+            success: true,
+        });
+
+        expect(nftCount).toBe(nftCountBefore);
+        expect(contractProfit).toBeLessThanOrEqual(contractProfitBefore);
+
+        printTransactionFees(sentMessageResult.transactions);
     });
 
     it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
