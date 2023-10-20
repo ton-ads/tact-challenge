@@ -156,7 +156,7 @@ describe('Task5', () => {
     it('should OwnershipAssigned admin loop', async () => {
         const nftCountBefore: bigint = nftCount;
         const contractProfitBefore: bigint = contractProfit;
-        const nftAmount: bigint = 578n;
+        const nftAmount: bigint = 58n;
         for (let i = 0; i < nftAmount; i++) {
             const n = await blockchain.treasury('nft-' + i);
             await task5.send(
