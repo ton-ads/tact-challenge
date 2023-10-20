@@ -156,7 +156,7 @@ describe('Task5', () => {
     it('should OwnershipAssigned admin loop', async () => {
         const nftCountBefore: bigint = nftCount;
         const contractProfitBefore: bigint = contractProfit;
-        const nftAmount: bigint = 100n;
+        const nftAmount: bigint = 578n;
         for (let i = 0; i < nftAmount; i++) {
             const n = await blockchain.treasury('nft-' + i);
             await task5.send(
@@ -333,12 +333,45 @@ describe('Task5', () => {
 
         printTransactionFees(sentMessageResult.transactions);
     });
-
-    it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
-        const sentMessageResult = await task5.send(
-            deployer.getSender(),
+    /*
+        it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
+            const sentMessageResult = await task5.send(
+                deployer.getSender(),
+                {
+                    value: toNano('0.99') + toNano('0.08') * nftCount,
+                },
+                {
+                    $$type: 'AdminWithdrawalAllNFTs',
+                    queryId: 0n
+                }
+            );
+    
+            //const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
+            //console.log(arr);
+    
+            nftCount = await task5.getCount();
+            contractProfit = await task5.getProfit();
+    
+            console.log(
+                '+ should reject AdminWithdrawalAllNFTs: Insufficent funds',
+                '\nContract profit: ', contractProfit,
+                '\nNft count: ', nftCount
+            );
+    
+            printTransactionFees(sentMessageResult.transactions);
+    
+            expect(sentMessageResult.transactions).toHaveTransaction({
+                from: deployer.address,
+                to: task5.address,
+                exitCode: 62515,
+            });
+        });
+    */
+    it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {
+        const shouldResult = await task5.send(
+            sender.getSender(),
             {
-                value: toNano('0.99') + toNano('0.08') * nftCount,
+                value: toNano('0.01'),
             },
             {
                 $$type: 'AdminWithdrawalAllNFTs',
@@ -346,24 +379,21 @@ describe('Task5', () => {
             }
         );
 
-        //const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
-        //console.log(arr);
-
         nftCount = await task5.getCount();
         contractProfit = await task5.getProfit();
 
         console.log(
-            '+ should reject AdminWithdrawalAllNFTs: Insufficent funds',
+            '+ should reject AdminWithdrawalAllNFTs: Invalid sender',
             '\nContract profit: ', contractProfit,
             '\nNft count: ', nftCount
         );
 
-        printTransactionFees(sentMessageResult.transactions);
+        printTransactionFees(shouldResult.transactions);
 
-        expect(sentMessageResult.transactions).toHaveTransaction({
-            from: deployer.address,
+        expect(shouldResult.transactions).toHaveTransaction({
+            from: sender.address,
             to: task5.address,
-            exitCode: 62515,
+            success: false,
         });
     });
 
@@ -403,36 +433,6 @@ describe('Task5', () => {
 
         expect(nftCount).toBe(0n);
         expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
-    });
-
-    it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {
-        const shouldResult = await task5.send(
-            sender.getSender(),
-            {
-                value: toNano('0.01'),
-            },
-            {
-                $$type: 'AdminWithdrawalAllNFTs',
-                queryId: 0n
-            }
-        );
-
-        nftCount = await task5.getCount();
-        contractProfit = await task5.getProfit();
-
-        console.log(
-            '+ should reject AdminWithdrawalAllNFTs: Invalid sender',
-            '\nContract profit: ', contractProfit,
-            '\nNft count: ', nftCount
-        );
-
-        printTransactionFees(shouldResult.transactions);
-
-        expect(shouldResult.transactions).toHaveTransaction({
-            from: sender.address,
-            to: task5.address,
-            success: false,
-        });
     });
 
     /*

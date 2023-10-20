@@ -141,12 +141,12 @@ contract Task5 with Deployable {
     require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
     // dump(context().value);
     // dump(ton("1") + self.count * ton("0.08"));
-    // require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
+    require((ton("1") + self.count * ton("0.08")) <= context().value, "Insufficent funds");
     let messageCount: Int = 0;
-    while (self.count > 0 && messageCount < 20) {            
+    while (self.count > 0 && messageCount < 100) {            
       self.count = self.count - 1;
       let nft: Address = self.nfts.get(self.count)!!;
-      sendNft(nft, msg.queryId, ton("0.08"), 0, self.owner);
+      sendNft(nft, msg.queryId, ton("0.03"), 0, self.owner);
       self.nfts.set(self.count, null);
       messageCount = messageCount + 1;
     }
@@ -159,7 +159,7 @@ contract Task5 with Deployable {
           send(SendParameters{to: myAddress(),
               value: 0,
               bounce: true,
-              mode: SendRemainingValue,
+              mode: SendRemainingBalance,
               body: AdminWithdrawalAllNFTs{queryId: msg.queryId}.toCell()
           }
       );
