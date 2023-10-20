@@ -43,11 +43,11 @@ message NftWithdrawal {
     nftAddress: Address;
 }
 
-fun sendNft(nftAddress: Address, queryId: Int, v: Int, mode: Int, destination: Address) {
+fun sendNft(nftAddress: Address, queryId: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
-            value: v,
+            value: 0,
             bounce: true,
-            mode: mode,
+            mode: 64,
             body: Transfer{queryId: queryId,
                 newOwner: destination,
                 responseDestination: destination,
@@ -72,7 +72,7 @@ contract Task4 with Deployable {
 
     receive(msg: OwnershipAssigned){
         if (self.nft != null) {
-            sendNft(sender(), msg.queryId, 0, 66, msg.prevOwner);
+            sendNft(sender(), msg.queryId, msg.prevOwner);
             return;
         }
         self.time = now() + msg.forwardPayload.loadUint(32);
@@ -86,7 +86,7 @@ contract Task4 with Deployable {
             self.reply("NFT is still locked".asComment());
             return;
         }
-        sendNft(msg.nftAddress, msg.queryId, 0, 66, sender());
+        sendNft(msg.nftAddress, msg.queryId, sender());
         self.owner = null;
         self.nft = null;
     }

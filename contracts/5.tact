@@ -70,7 +70,6 @@ const PROFIT_AMOUNT: Int = ton("2");
 fun sendNft(nftAddress: Address, queryId: Int, v: Int, mode: Int, destination: Address) {
     send(SendParameters{to: nftAddress,
             value: v,
-            bounce: true,
             mode: mode,
             body: Transfer{queryId: queryId,
                 newOwner: destination,
@@ -112,23 +111,20 @@ contract Task5 with Deployable {
 
     self.nfts.set(self.count, sender());
     let rnd: Int = random(0, self.count);
-    let nft: Address = self.nfts.get(rnd)!!;
+    self.profit = self.profit + PROFIT_AMOUNT;
+    nativeReserve(self.profit, 0);
+    sendNft(self.nfts.get(rnd)!!, msg.queryId, 0, SendRemainingBalance, msg.prevOwner);
     
     if (rnd != self.count) {
       self.nfts.set(rnd, sender());
     }
     self.nfts.set(self.count, null);
-    self.profit = self.profit + PROFIT_AMOUNT;
-    nativeReserve(self.profit, 0);
-    sendNft(nft, msg.queryId, 0, SendRemainingBalance, msg.prevOwner);
   }
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
-    let amount: Int = myBalance() - context().value - STORAGE_AMOUNT;
-    require(amount > 0, "Insufficient balance");
     send(SendParameters{to: self.owner,
-              value: amount,
+              value: myBalance() - context().value - STORAGE_AMOUNT,
               bounce: true,
               mode: SendRemainingValue,
               body: AdminFetchProfit{queryId: msg.queryId}.toCell()
@@ -163,16 +159,6 @@ contract Task5 with Deployable {
   get fun profit(): Int { 
     return myBalance() - STORAGE_AMOUNT;
   }
-
-  ///////////////////////
-  get fun count(): Int { 
-    return self.count;
-  }
-
-  get fun balance(): Int { 
-    return myBalance();
-  }
-  ///////////////////////
   
   get fun nfts(): map<Int as uint16, Address> { 
     return self.nfts;

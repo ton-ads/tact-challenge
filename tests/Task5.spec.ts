@@ -156,7 +156,7 @@ describe('Task5', () => {
     it('should OwnershipAssigned admin loop', async () => {
         const nftCountBefore: bigint = nftCount;
         const contractProfitBefore: bigint = contractProfit;
-        const nftAmount: bigint = 58n;
+        const nftAmount: bigint = 222n;
         for (let i = 0; i < nftAmount; i++) {
             const n = await blockchain.treasury('nft-' + i);
             await task5.send(
@@ -333,40 +333,40 @@ describe('Task5', () => {
 
         printTransactionFees(sentMessageResult.transactions);
     });
-    /*
-        it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
-            const sentMessageResult = await task5.send(
-                deployer.getSender(),
-                {
-                    value: toNano('0.99') + toNano('0.08') * nftCount,
-                },
-                {
-                    $$type: 'AdminWithdrawalAllNFTs',
-                    queryId: 0n
-                }
-            );
-    
-            //const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
-            //console.log(arr);
-    
-            nftCount = await task5.getCount();
-            contractProfit = await task5.getProfit();
-    
-            console.log(
-                '+ should reject AdminWithdrawalAllNFTs: Insufficent funds',
-                '\nContract profit: ', contractProfit,
-                '\nNft count: ', nftCount
-            );
-    
-            printTransactionFees(sentMessageResult.transactions);
-    
-            expect(sentMessageResult.transactions).toHaveTransaction({
-                from: deployer.address,
-                to: task5.address,
-                exitCode: 62515,
-            });
+
+    it('should reject AdminWithdrawalAllNFTs: Insufficent funds ', async () => {
+        const sentMessageResult = await task5.send(
+            deployer.getSender(),
+            {
+                value: toNano('0.99') + toNano('0.08') * nftCount,
+            },
+            {
+                $$type: 'AdminWithdrawalAllNFTs',
+                queryId: 0n
+            }
+        );
+
+        //const arr = sentMessageResult.transactions.map(tx => flattenTransaction(tx));
+        //console.log(arr);
+
+        nftCount = await task5.getCount();
+        contractProfit = await task5.getProfit();
+
+        console.log(
+            '+ should reject AdminWithdrawalAllNFTs: Insufficent funds',
+            '\nContract profit: ', contractProfit,
+            '\nNft count: ', nftCount
+        );
+
+        printTransactionFees(sentMessageResult.transactions);
+
+        expect(sentMessageResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: task5.address,
+            exitCode: 62515,
         });
-    */
+    });
+
     it('should reject AdminWithdrawalAllNFTs: Invalid sender ', async () => {
         const shouldResult = await task5.send(
             sender.getSender(),
@@ -434,62 +434,6 @@ describe('Task5', () => {
         expect(nftCount).toBe(0n);
         expect(contractProfit).toBeGreaterThanOrEqual(contractProfitBefore);
     });
-
-    /*
-      it('should OwnershipAssigned sender get swap', async () => {
-     
-          for (let i = 0; i < 5; i++) {
-              const n = await blockchain.treasury('nft-' + i);
-              await task5.send(
-                  n.getSender(),
-                  {
-                      value: toNano('0.1'),
-                  },
-                  {
-                      $$type: 'OwnershipAssigned',
-                      queryId: 0n,
-                      prevOwner: deployer.address,
-                      forwardPayload: beginCell().endCell()
-                  }
-              )
-          }
-     
-          const counterBefore = await task5.getCount();
-          console.log('count Nft before', counterBefore);
-     
-          const sentMessageResult = await task5.send(
-              nft2.getSender(),
-              {
-                  value: toNano('2.1'),
-              },
-              {
-                  $$type: 'OwnershipAssigned',
-                  queryId: 0n,
-                  prevOwner: sender.address,
-                  forwardPayload: beginCell().endCell()
-              }
-          );
-     
-          printTransactionFees(sentMessageResult.transactions);
-     
-          expect(sentMessageResult.transactions).toHaveTransaction({
-              from: nft2.address,
-              to: task5.address,
-              success: true,
-          });
-     
-          const counterAfter = await task5.getCount();
-          console.log('count Nft after', counterAfter);
-     
-          const mapAfter = await task5.getNfts();
-          console.log('map Nfts after', mapAfter);
-     
-          const profitAfter = await task5.getProfit();
-          console.log('contract profit after', profitAfter);
-      });
-     
-
-     */
 });
 
 
